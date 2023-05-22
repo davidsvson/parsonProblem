@@ -4,7 +4,7 @@ import { firestore } from "../main";
 import { doc, getDoc } from "firebase/firestore";
 import Highlight from 'react-highlight';
 import "highlight.js/styles/default.css";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 
 
 import "./parson.css";
@@ -15,11 +15,9 @@ interface ListItem {
 }
 
 const Parson = () => {
-    const [draggedItem, setDraggedItem] = useState<ListItem | null>(null);
     const [list, setList] = useState<ListItem[]>([]);
     const [shuffledList, setShuffledList] = useState<ListItem[]>([]);
     const [comparisonResult, setComparisonResult] = useState<string>('');
-
 
     const [selectedLanguage, setSelectedLanguage] = useState<string>('');
 
@@ -37,7 +35,6 @@ const Parson = () => {
                     };
                 });
 
-
                 setList(listItems);
                 setShuffledList(shuffle(listItems));
                 setSelectedLanguage(language);
@@ -48,67 +45,48 @@ const Parson = () => {
     }, [])
 
 
-    const reorder = (list : ListItem[], startIndex : number, endIndex : number) : ListItem[] => {
+    const reorder = (list: ListItem[], startIndex: number, endIndex: number): ListItem[] => {
         const result = Array.from(list);
         const [removed] = result.splice(startIndex, 1);
         result.splice(endIndex, 0, removed);
-      
+
         return result;
-      };
+    };
 
-    // const handleDragStart = (event: React.DragEvent<HTMLLIElement>, item: ListItem) => {
-    //     setDraggedItem(item);
-    //     event.dataTransfer.effectAllowed = 'move';
-    //     event.dataTransfer.setData('text/plain', String(item.id));
-    // };
+    const onDragEnd = (result: DropResult) => {
+        if (!result.destination) {
+            return;
+        }
 
-    // const handleDragOver = (event: React.DragEvent<HTMLLIElement>) => {
-    //     event.preventDefault();
-    // };
+        const items = reorder(
+            shuffledList,
+            result.source.index,
+            result.destination.index
+        );
 
-    // const handleDrop = (event: React.DragEvent<HTMLLIElement>, targetIndex: number) => {
-    //     event.preventDefault();
-    //     const sourceIndex = shuffledList.findIndex(item => item.id === Number(event.dataTransfer.getData('text/plain')));
-    //     const updatedList = [...shuffledList];
-    //     const [removed] = updatedList.splice(sourceIndex, 1);
-    //     updatedList.splice(targetIndex, 0, removed);
-    //     setShuffledList(updatedList);
-    //     setDraggedItem(null);
-    // };
-
-    const onDragEnd = () => {
-
-
+        setShuffledList(
+            items
+        );
     }
 
     const indentedList = indentList(shuffledList);
 
     const listElements = indentedList.map((item, index) => (
-        <Droppable droppableId="droppable">
+        <Draggable key={item.id} draggableId={item.id} index={index}>
             {(provided, snapshot) => (
                 <li
-                    {...provided.droppableProps}
+                    key={index}
                     ref={provided.innerRef}
-                /* style={getListStyle(snapshot.isDraggingOver)} */
-
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
                 >
-                    <Draggable key={item.id} draggableId={item.id} index={index}>
-                        {(provided, snapshot) => (
-                            <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                            >
-                                <Highlight className={selectedLanguage}>
-                                    {item.text}
-                                </Highlight>
-                            </div>
-                        )}
-                    </Draggable>
+                    <Highlight className={selectedLanguage}>
+                        {item.text}
+                    </Highlight>
                 </li>
             )}
-        </Droppable>
-    ))
+        </Draggable>
+    ));
 
     const compareLists = () => {
         let result = "Correct!";
@@ -126,10 +104,17 @@ const Parson = () => {
 
     return (
         <div className="parson-container">
-            <DragDropContext onDragEnd={onDragEnd}
-            <ul className="parson-list">{listElements}</ul>
-
-
+            <DragDropContext onDragEnd={onDragEnd} >
+                <Droppable droppableId="droppable">
+                    {(provided, snapshot) => (
+                        <ul className="parson-list"
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}>
+                            {listElements}
+                        </ul>
+                    )}
+                </Droppable>
+            </DragDropContext>
             <button className="check-button" onClick={compareLists}>Check Result</button>
             {comparisonResult && (
                 <div className="comparison-result">{comparisonResult}</div>
