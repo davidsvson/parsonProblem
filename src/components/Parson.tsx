@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { firestore } from "../main";
-import { doc, getDoc } from "firebase/firestore";
+import { compareLists, reorder, indentList, getRows, shuffle } from "./parsonUtils";
 import Highlight from 'react-highlight';
 import "highlight.js/styles/default.css";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-
 
 import "./parson.css";
 
@@ -93,10 +91,13 @@ const Parson = () => {
             <DragDropContext onDragEnd={onDragEnd} >
                 <Droppable droppableId="droppable">
                     {(provided, snapshot) => (
-                        <ul className="parson-list"
+                        <ul
+                            className="parson-list"
                             {...provided.droppableProps}
-                            ref={provided.innerRef}>
+                            ref={provided.innerRef}
+                        >
                             {listElements}
+                            {provided.placeholder}
                         </ul>
                     )}
                 </Droppable>
@@ -107,85 +108,6 @@ const Parson = () => {
             )}
         </div>
     );
-}
-
-
-const compareLists = (list1:  ListItem[], list2: ListItem[]) : number => {
-    for (let i = 0; i < list1.length; i++) {
-        if (list1[i].text.trim() !== list2[i].text.trim()) {
-            return i + 1;
-        }
-    }
-
-    return 0;
-};
-
-const reorder = (list: ListItem[], startIndex: number, endIndex: number): ListItem[] => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-};
-
-const indentList = (items: ListItem[]): ListItem[] => {
-    const indentation = '    '; // desired indentation
-    const trimmedItems = items.map((item) => ({ ...item, text: item.text.trim() }));
-    let indentLevel = 0;
-
-    for (let i = 0; i < trimmedItems.length; i++) {
-        const currentText = trimmedItems[i].text;
-        const isClosingBrace = currentText.endsWith('}');
-        const isStartingBrace = currentText.endsWith('{');
-
-        if (isClosingBrace && indentLevel > 0) {
-            indentLevel--;
-        }
-
-        trimmedItems[i].text = indentation.repeat(indentLevel) + currentText;
-
-        if (isStartingBrace) {
-            indentLevel++;
-        }
-    }
-
-    return trimmedItems;
-}
-
-const getRows = async (id: string): Promise<{ rows: string[], language: string }> => {
-    try {
-
-        const docRef = doc(firestore, "parsonItems", id);
-        const document = await getDoc(docRef);
-
-        if (document.exists()) {
-            const data = document.data();
-            const rows: string[] = data.rows;
-            const language: string = data.language;
-            return { rows, language };
-        } else {
-            console.log('Document not found.');
-        }
-    } catch (error) {
-        console.error('Error fetching document:', error);
-    }
-    return { rows: [], language: '' };
-}
-
-const shuffle = (listItems: ListItem[]): ListItem[] => {
-    const shuffledListItems = [...listItems];
-
-    let currentIndex = shuffledListItems.length, randomIndex;
-
-    while (currentIndex != 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [shuffledListItems[currentIndex], shuffledListItems[randomIndex]] = [
-            shuffledListItems[randomIndex], shuffledListItems[currentIndex]
-        ];
-    }
-
-    return shuffledListItems;
 }
 
 export default Parson;
