@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { firestore } from "../main";
-import { doc, getDoc } from "firebase/firestore";
+import { compareLists, reorder, indentList, getRows, shuffle } from "./parsonUtils";
 import Highlight from 'react-highlight';
 import "highlight.js/styles/default.css";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 
 import "./parson.css";
 
 interface ListItem {
-    id: number;
+    id: string;
     text: string;
 }
 
 const Parson = () => {
-    const [draggedItem, setDraggedItem] = useState<ListItem | null>(null);
     const [list, setList] = useState<ListItem[]>([]);
     const [shuffledList, setShuffledList] = useState<ListItem[]>([]);
     const [comparisonResult, setComparisonResult] = useState<string>('');
@@ -28,11 +27,10 @@ const Parson = () => {
 
                 const listItems: ListItem[] = rows.map((row, index) => {
                     return {
-                        id: index + 1,
+                        id: String(index + 1),
                         text: row,
                     };
                 });
-
 
                 setList(listItems);
                 setShuffledList(shuffle(listItems));
@@ -43,44 +41,40 @@ const Parson = () => {
         fetchData();
     }, [])
 
-    const handleDragStart = (event: React.DragEvent<HTMLLIElement>, item: ListItem) => {
-        setDraggedItem(item);
-        event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/plain', String(item.id));
-    };
+    const onDragEnd = (result: DropResult) => {
+        if (!result.destination) {
+            return;
+        }
 
-    const handleDragOver = (event: React.DragEvent<HTMLLIElement>) => {
-        event.preventDefault();
-    };
+        const items = reorder(
+            shuffledList,
+            result.source.index,
+            result.destination.index
+        );
 
-    const handleDrop = (event: React.DragEvent<HTMLLIElement>, targetIndex: number) => {
-        event.preventDefault();
-        const sourceIndex = shuffledList.findIndex(item => item.id === Number(event.dataTransfer.getData('text/plain')));
-        const updatedList = [...shuffledList];
-        const [removed] = updatedList.splice(sourceIndex, 1);
-        updatedList.splice(targetIndex, 0, removed);
-        setShuffledList(updatedList);
-        setDraggedItem(null);
-    };
+        setShuffledList(
+            items
+        );
+    }
 
     const indentedList = indentList(shuffledList);
 
     const listElements = indentedList.map((item, index) => (
-        <li
-            key={item.id}
-            draggable
-            onDragStart={event => handleDragStart(event, item)}
-            onDragOver={handleDragOver}
-            onDrop={event => handleDrop(event, index)}
-            style={{
-                opacity: draggedItem && draggedItem.id === item.id ? 0.5 : 1,
-            }}
-        >
-            <Highlight className={selectedLanguage}>
-                {item.text}
-            </Highlight>
-        </li>
-    ))
+        <Draggable key={item.id} draggableId={item.id} index={index}>
+            {(provided, snapshot) => (
+                <li
+                    key={index}
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                >
+                    <Highlight className={selectedLanguage}>
+                        {item.text}
+                    </Highlight>
+                </li>
+            )}
+        </Draggable>
+    ));
 
     const handleCheckResult = () => {
         const result = compareLists(list, shuffledList);
@@ -91,86 +85,29 @@ const Parson = () => {
             setComparisonResult('Rätt!');
         }
     }
-    
+
     return (
         <div className="parson-container">
-            <ul className="parson-list">{listElements}</ul>
-            <button className="check-button" onClick={handleCheckResult}>Kontrollera svar</button>
+            <DragDropContext onDragEnd={onDragEnd} >
+                <Droppable droppableId="droppable">
+                    {(provided, snapshot) => (
+                        <ul
+                            className="parson-list"
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                        >
+                            {listElements}
+                            {provided.placeholder}
+                        </ul>
+                    )}
+                </Droppable>
+            </DragDropContext>
+            <button className="check-button" onClick={handleCheckResult}>Check Result</button>
             {comparisonResult && (
                 <div className="comparison-result">{comparisonResult}</div>
             )}
         </div>
     );
-}
-
-const compareLists = (list1:  ListItem[], list2: ListItem[]) : number => {
-    for (let i = 0; i < list1.length; i++) {
-        if (list1[i].text.trim() !== list2[i].text.trim()) {
-            return i + 1;
-        }
-    }
-
-    return 0;
-};
-
-const indentList = (items: ListItem[]): ListItem[] => {
-    const indentation = '    '; // desired indentation
-    const trimmedItems = items.map((item) => ({ ...item, text: item.text.trim() }));
-    let indentLevel = 0; 
-
-    for (let i = 0; i < trimmedItems.length; i++) {
-        const currentText = trimmedItems[i].text;
-        const isClosingBrace = currentText.endsWith('}');
-        const isStartingBrace = currentText.endsWith('{');
-
-        if (isClosingBrace && indentLevel > 0) {
-            indentLevel--;
-        }
-
-        trimmedItems[i].text = indentation.repeat(indentLevel) + currentText;
-
-        if (isStartingBrace) {
-            indentLevel++;
-        }
-    }
-
-    return trimmedItems;
-}
-
-const getRows = async (id: string): Promise<{ rows: string[], language: string }> => {
-    try {
-
-        const docRef = doc(firestore, "parsonItems", id);
-        const document = await getDoc(docRef);
-
-        if (document.exists()) {
-            const data = document.data();
-            const rows: string[] = data.rows;
-            const language: string = data.language;
-            return { rows, language };
-        } else {
-            console.log('Document not found.');
-        }
-    } catch (error) {
-        console.error('Error fetching document:', error);
-    }
-    return { rows: [], language: '' };
-}
-
-const shuffle = (listItems: ListItem[]): ListItem[] => {
-    const shuffledListItems = [...listItems];
-
-    let currentIndex = shuffledListItems.length, randomIndex;
-
-    while (currentIndex != 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [shuffledListItems[currentIndex], shuffledListItems[randomIndex]] = [
-            shuffledListItems[randomIndex], shuffledListItems[currentIndex]
-        ];
-    }
-
-    return shuffledListItems;
 }
 
 export default Parson;
