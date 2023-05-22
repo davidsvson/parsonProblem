@@ -3,7 +3,7 @@ import { useState } from "react";
 import { firestore } from "../main";
 import { useNavigate } from "react-router-dom";
 
-const PLACEHOLDER_CODE = "paste your code here"
+const PLACEHOLDER_CODE = "klistra in din kod här"
 
 const languageOptions = [
     { value: "javascript", label: "JavaScript" },
@@ -46,7 +46,7 @@ const Input = () => {
           <option key={option.value} value={option.value}>{option.label}</option>
         ))}
       </select><br />
-            <button className="shuffle-button" onClick={handleShuffle}>Shuffle</button>
+            <button className="shuffle-button" onClick={handleShuffle}>Blanda om</button>
         </div>
     )
 }

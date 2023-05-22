@@ -17,8 +17,6 @@ const Parson = () => {
     const [list, setList] = useState<ListItem[]>([]);
     const [shuffledList, setShuffledList] = useState<ListItem[]>([]);
     const [comparisonResult, setComparisonResult] = useState<string>('');
-
-
     const [selectedLanguage, setSelectedLanguage] = useState<string>('');
 
     const params = useParams()
@@ -84,30 +82,36 @@ const Parson = () => {
         </li>
     ))
 
-    const compareLists = () => {
-        let result = "Correct!";
-    
-        for (let i = 0; i < list.length; i++) {
-          if (list[i].text.trim() !== shuffledList[i].text.trim()) {
-            result = `Error at line ${i + 1}`;
-            break;
-          }
-        }
-    
-        setComparisonResult(result);
-      };
-    
+    const handleCheckResult = () => {
+        const result = compareLists(list, shuffledList);
 
+        if (result > 0) {
+            setComparisonResult('Fel på rad ' + result);
+        } else {
+            setComparisonResult('Rätt!');
+        }
+    }
+    
     return (
         <div className="parson-container">
             <ul className="parson-list">{listElements}</ul>
-            <button className="check-button" onClick={compareLists}>Check Result</button>
+            <button className="check-button" onClick={handleCheckResult}>Kontrollera svar</button>
             {comparisonResult && (
                 <div className="comparison-result">{comparisonResult}</div>
             )}
         </div>
     );
 }
+
+const compareLists = (list1:  ListItem[], list2: ListItem[]) : number => {
+    for (let i = 0; i < list1.length; i++) {
+        if (list1[i].text.trim() !== list2[i].text.trim()) {
+            return i + 1;
+        }
+    }
+
+    return 0;
+};
 
 const indentList = (items: ListItem[]): ListItem[] => {
     const indentation = '    '; // desired indentation
