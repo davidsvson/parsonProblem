@@ -1,0 +1,16 @@
+.input-field {
+    background-color: #f0f0f0;
+    border: none;
+    outline: none;
+}
+
+.language-select {
+    background-color: #969696;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.2em 0.5em;
+    margin: 0.3em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+}

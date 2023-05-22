@@ -41,10 +41,10 @@ button {
 }
 
 button:hover {
-  border-color: #646cff;
+  border-color: #1a1a1a;
 }
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto  #1a1a1a;
 }
