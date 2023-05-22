@@ -18,7 +18,6 @@ const Parson = () => {
     const [list, setList] = useState<ListItem[]>([]);
     const [shuffledList, setShuffledList] = useState<ListItem[]>([]);
     const [comparisonResult, setComparisonResult] = useState<string>('');
-
     const [selectedLanguage, setSelectedLanguage] = useState<string>('');
 
     const params = useParams()
@@ -43,15 +42,6 @@ const Parson = () => {
 
         fetchData();
     }, [])
-
-
-    const reorder = (list: ListItem[], startIndex: number, endIndex: number): ListItem[] => {
-        const result = Array.from(list);
-        const [removed] = result.splice(startIndex, 1);
-        result.splice(endIndex, 0, removed);
-
-        return result;
-    };
 
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) {
@@ -88,19 +78,15 @@ const Parson = () => {
         </Draggable>
     ));
 
-    const compareLists = () => {
-        let result = "Correct!";
+    const handleCheckResult = () => {
+        const result = compareLists(list, shuffledList);
 
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].text.trim() !== shuffledList[i].text.trim()) {
-                result = `Error at line ${i + 1}`;
-                break;
-            }
+        if (result > 0) {
+            setComparisonResult('Fel på rad ' + result);
+        } else {
+            setComparisonResult('Rätt!');
         }
-
-        setComparisonResult(result);
-    };
-
+    }
 
     return (
         <div className="parson-container">
@@ -115,13 +101,32 @@ const Parson = () => {
                     )}
                 </Droppable>
             </DragDropContext>
-            <button className="check-button" onClick={compareLists}>Check Result</button>
+            <button className="check-button" onClick={handleCheckResult}>Check Result</button>
             {comparisonResult && (
                 <div className="comparison-result">{comparisonResult}</div>
             )}
         </div>
     );
 }
+
+
+const compareLists = (list1:  ListItem[], list2: ListItem[]) : number => {
+    for (let i = 0; i < list1.length; i++) {
+        if (list1[i].text.trim() !== list2[i].text.trim()) {
+            return i + 1;
+        }
+    }
+
+    return 0;
+};
+
+const reorder = (list: ListItem[], startIndex: number, endIndex: number): ListItem[] => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+};
 
 const indentList = (items: ListItem[]): ListItem[] => {
     const indentation = '    '; // desired indentation
