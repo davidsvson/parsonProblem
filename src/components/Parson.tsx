@@ -61,7 +61,7 @@ const Parson = () => {
 
     const listElements = indentedList.map((item, index) => (
         <Draggable key={item.id} draggableId={item.id} index={index}>
-            {(provided, snapshot) => (
+            {(provided) => (
                 <li
                     key={index}
                     ref={provided.innerRef}
@@ -90,7 +90,7 @@ const Parson = () => {
         <div className="parson-container">
             <DragDropContext onDragEnd={onDragEnd} >
                 <Droppable droppableId="droppable">
-                    {(provided, snapshot) => (
+                    {(provided) => (
                         <ul
                             className="parson-list"
                             {...provided.droppableProps}
