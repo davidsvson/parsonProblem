@@ -6,6 +6,7 @@ import "highlight.js/styles/default.css";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 
 import "./parson.css";
+import { StrictModeDroppable } from "./StrictModeDroppable";
 
 interface ListItem {
     id: string;
@@ -89,7 +90,7 @@ const Parson = () => {
     return (
         <div className="parson-container">
             <DragDropContext onDragEnd={onDragEnd} >
-                <Droppable droppableId="droppable">
+                <StrictModeDroppable droppableId="droppable">
                     {(provided) => (
                         <ul
                             className="parson-list"
@@ -100,7 +101,7 @@ const Parson = () => {
                             {provided.placeholder}
                         </ul>
                     )}
-                </Droppable>
+                </StrictModeDroppable>
             </DragDropContext>
             <button className="check-button" onClick={handleCheckResult}>Check Result</button>
             {comparisonResult && (
