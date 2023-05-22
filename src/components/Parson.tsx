@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { compareLists, reorder, indentList, getRows, shuffle } from "./parsonUtils";
 import Highlight from 'react-highlight';
 import "highlight.js/styles/default.css";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, DropResult } from "react-beautiful-dnd";
 
 import "./parson.css";
 import { StrictModeDroppable } from "./StrictModeDroppable";
