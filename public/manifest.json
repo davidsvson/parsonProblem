@@ -1,0 +1,26 @@
+{
+    "name": "ParsonProblem",
+    "short_name": "PP",
+    "start_url": "https://davidsvson.github.io/parsonProblem",
+    "display": "standalone",
+    "background_color": "#fff",
+    "description": "Träna på kodproblem",
+    "icons": [
+      {
+        "src": "/bars144.png",
+        "sizes": "144x144",
+        "type": "image/png"
+      },
+      {
+        "src": "/bars192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/bars512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  
