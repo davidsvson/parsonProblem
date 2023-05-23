@@ -1,7 +1,7 @@
 {
     "name": "ParsonProblem",
     "short_name": "PP",
-    "start_url": "https://davidsvson.github.io/parsonProblem",
+    "start_url": ".",
     "display": "standalone",
     "background_color": "#fff",
     "description": "Träna på kodproblem",
