@@ -7,17 +7,17 @@
   "description": "Träna på kodproblem",
   "icons": [
     {
-      "src": "/parsonProblem/bars144.png",
+      "src": "/parsonProblem/icons/bars_white144.png",
       "sizes": "144x144",
       "type": "image/png"
     },
     {
-      "src": "/parsonProblem/bars192.png",
+      "src": "/parsonProblem/icons/bars_white192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/parsonProblem/bars512.png",
+      "src": "/parsonProblem/icons/bars_white512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
