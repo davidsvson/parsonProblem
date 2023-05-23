@@ -1,5 +1,4 @@
 
-
 .parson-list {
   list-style-type: none;
   white-space: pre;
@@ -10,18 +9,6 @@
 .parson-list li {
   padding: 0.5rem 0rem;
   margin: 0;
-}
-
-.parson-list li pre:hover {
-  background-color: #ebebeb;
-}
-
-.parson-list li pre:active {
-  background-color: #dcdcdc;
-}
-
-.parson-list li.dragging pre {
-  opacity: 0.5;
 }
 
 .parson-list pre {
