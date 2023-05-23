@@ -7,8 +7,18 @@
     "description": "Träna på kodproblem",
     "icons": [
       {
-        "src": "/bars.png",
+        "src": "/icons/bars144.png",
         "sizes": "144x144",
+        "type": "image/png"
+      },
+      {
+        "src": "/icons/bars192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/icons/bars512.png",
+        "sizes": "512x512",
         "type": "image/png"
       }
     ]
