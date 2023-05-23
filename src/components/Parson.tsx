@@ -103,7 +103,7 @@ const Parson = () => {
                     )}
                 </StrictModeDroppable>
             </DragDropContext>
-            <button className="check-button" onClick={handleCheckResult}>Check Result</button>
+            <button className="check-button" onClick={handleCheckResult}>Kontrollera</button>
             {comparisonResult && (
                 <div className="comparison-result">{comparisonResult}</div>
             )}

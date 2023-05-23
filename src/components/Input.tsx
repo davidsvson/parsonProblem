@@ -49,7 +49,7 @@ const Input = () => {
                     <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
             </select><br />
-            <button className="shuffle-button" onClick={handleShuffle}>Blanda om</button>
+            <button className="shuffle-button" onClick={handleShuffle}>Blanda</button>
         </div>
     )
 }
